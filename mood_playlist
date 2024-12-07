@@ -1,0 +1,27 @@
+# mood_playlist.py
+
+from textblob import TextBlob
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+
+def analyze_mood(text):
+    analysis = TextBlob(text)
+    if analysis.sentiment.polarity > 0:
+        return "happy"
+    elif analysis.sentiment.polarity < 0:
+        return "sad"
+    return "neutral"
+
+def generate_playlist(mood):
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="your_client_id",
+                                                   client_secret="your_client_secret",
+                                                   redirect_uri="http://localhost:8888/callback"))
+    query = f"mood:{mood}"
+    results = sp.search(q=query, type="track", limit=10)
+    return [track["name"] for track in results["tracks"]["items"]]
+
+# Usage
+journal_entry = "I am feeling amazing today. Everything went great!"
+mood = analyze_mood(journal_entry)
+playlist = generate_playlist(mood)
+print(f"Playlist for {mood} mood: {playlist}")
